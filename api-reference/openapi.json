@@ -1,195 +1,525 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "description": "API access for rapid integration",
+    "version": "2024-10-09T14:06:16Z",
+    "title": "GateConnect",
+    "termsOfService": "https://www.gateai.ai/terms-of-service",
+    "contact": {
+      "name": "GateConnect",
+      "email": "support@gateai.ai"
+    }
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
+  "host": "api.gateai.ai",
+  "schemes": ["https"],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/v1/chat/create-thread": {
       "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
+        "description": "Creates a new chat thread",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/ChatThreadModel"
             }
           }
-        }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/v1/chat/dlp-check": {
+      "post": {
+        "description": "Verifies if the prompt contains sensitive information",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
+            "in": "body",
+            "name": "ChatInputModel",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "$ref": "#/definitions/ChatInputModel"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/DlpCheckResultsModel"
             }
           }
-        }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
+      }
+    },
+    "/v1/chat/message": {
+      "post": {
+        "description": "Posts a chat query and gets the Metadata of chat output",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "ChatInputModel",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChatInputModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/ChatOutputMetaModel"
+            }
+          }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
+      }
+    },
+    "/v1/chat/message/response": {
+      "post": {
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "IdInputModel",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdInputModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/ChatResponseOutputModel"
+            }
+          }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
+      }
+    },
+    "/v1/chat/prompt/get-samples": {
+      "get": {
+        "description": "Fetches sample curated prompts",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/SamplePromptModel"
+            }
+          }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
+      }
+    },
+    "/v1/chat/prompt/improve": {
+      "post": {
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "InputContentModel",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InputContentModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/ImprovedPromptModel"
+            }
+          }
+        },
+        "security": [
+          {
+            "GateConnect": []
+          }
+        ]
       }
     }
   },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
+  "securityDefinitions": {
+    "GateConnect": {
+      "description": "GateConnect Authorization happens with x-gateconnect-key",
+      "type": "apiKey",
+      "name": "x-gateconnect-key",
+      "in": "header",
+      "x-amazon-apigateway-authtype": "custom"
+    }
+  },
+  "definitions": {
+    "InputContentModel": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "title": "InputContentModel"
+    },
+    "SamplePromptModel": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string"
+            },
+            "prompt_identifier": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            }
           },
-          {
-            "required": [
-              "id"
-            ],
+          "required": ["category", "prompt", "prompt_identifier"]
+        }
+      }
+    },
+    "ChatOutputMetaModel": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
               "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+                "type": "integer"
+              },
+              "engine": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  }
+                },
+                "required": ["category", "model", "name", "type"]
               }
-            }
+            },
+            "required": ["engine", "id"]
           }
-        ]
+        }
+      }
+    },
+    "ChatInputModel": {
+      "type": "object",
+      "properties": {
+        "threadId": {
+          "type": "number"
+        },
+        "content": {
+          "type": "string"
+        }
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+      "title": "ChatInputModel"
+    },
+    "ChatThreadModel": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
           },
-          "message": {
+          "required": ["id"]
+        }
+      }
+    },
+    "DlpCheckResultsModel": {
+      "type": "object",
+      "required": ["$containsPIIMessage", "app_guard", "finding"],
+      "properties": {
+        "finding": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "quote": {
+                "type": "string"
+              },
+              "infoType": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "sensitivityScore": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "string",
+                        "enum": ["SENSITIVITY_MODERATE"]
+                      }
+                    },
+                    "required": ["score"]
+                  }
+                },
+                "required": ["name", "sensitivityScore"]
+              },
+              "likelihood": {
+                "type": "string",
+                "enum": ["POSSIBLE", "VERY_LIKELY"]
+              },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "byteRange": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "string",
+                        "pattern": "^[0-9]+$"
+                      },
+                      "end": {
+                        "type": "string",
+                        "pattern": "^[0-9]+$"
+                      }
+                    },
+                    "required": ["end", "start"]
+                  },
+                  "codepointRange": {
+                    "type": "object",
+                    "properties": {
+                      "start": {
+                        "type": "string",
+                        "pattern": "^[0-9]+$"
+                      },
+                      "end": {
+                        "type": "string",
+                        "pattern": "^[0-9]+$"
+                      }
+                    },
+                    "required": ["end", "start"]
+                  }
+                },
+                "required": ["byteRange", "codepointRange"]
+              }
+            },
+            "required": ["infoType", "likelihood", "location", "quote"]
+          }
+        },
+        "app_guard": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "msg": {
+                "type": "string"
+              }
+            },
+            "required": ["msg"]
+          }
+        },
+        "$containsPIIMessage": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ImprovedPromptModel
+
+": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "varPlaceholder": {
+          "type": "array",
+          "items": {
             "type": "string"
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "IdInputModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "title": "IdModel"
+    },
+    "ChatResponseOutputModel": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "message_id": {
+              "type": "integer"
+            },
+            "engine_id": {
+              "type": "integer"
+            },
+            "content": {
+              "type": "object",
+              "properties": {
+                "usage": {
+                  "type": "object",
+                  "properties": {
+                    "total_tokens": {
+                      "type": "integer"
+                    },
+                    "prompt_tokens": {
+                      "type": "integer"
+                    },
+                    "completion_tokens": {
+                      "type": "integer"
+                    },
+                    "prompt_tokens_details": {
+                      "type": "object",
+                      "properties": {
+                        "cached_tokens": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["cached_tokens"]
+                    },
+                    "completion_tokens_details": {
+                      "type": "object",
+                      "properties": {
+                        "reasoning_tokens": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["reasoning_tokens"]
+                    }
+                  },
+                  "required": [
+                    "completion_tokens",
+                    "completion_tokens_details",
+                    "prompt_tokens",
+                    "prompt_tokens_details",
+                    "total_tokens"
+                  ]
+                },
+                "content": {
+                  "type": "string"
+                }
+              },
+              "required": ["content", "usage"]
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "engine": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_default": {
+                  "type": "boolean"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "category",
+                "id",
+                "is_active",
+                "is_default",
+                "model",
+                "name",
+                "type"
+              ]
+            }
+          },
+          "required": ["content", "engine", "engine_id", "id", "message_id"]
+        }
       }
     }
+  },
+  "externalDocs": {
+    "description": "Find out more about how GateAI can help",
+    "url": "https://gateai.document360.io/docs"
   }
 }
